@@ -41,6 +41,7 @@ public class Request {
         	else
                 urlNameString = url + "?" + param;
             URL realUrl = new URL(urlNameString);
+            //System.out.println(urlNameString);
             // 打开和URL之间的连接
             URLConnection connection = realUrl.openConnection();
             // 设置通用的请求属性
@@ -80,12 +81,17 @@ public class Request {
         return result;
 	}
 
-	public String sendPost(String url, String param) {
+	public String sendPost(int rowNumber) {
 	        PrintWriter out = null;
+	        String url=getRequestURL(rowNumber);
+			String param=setRequestMethod(1,rowNumber)[2];
 	        BufferedReader in = null;
 	        String result = "";
-	        try {
-	            URL realUrl = new URL(url);
+	        String urlNameString;
+	        try {	        	
+	        	urlNameString = url;
+	        	
+	            URL realUrl = new URL(urlNameString);
 	            // 打开和URL之间的连接
 	            URLConnection conn = realUrl.openConnection();
 	            // 设置通用的请求属性
@@ -93,6 +99,7 @@ public class Request {
 	            conn.setRequestProperty("connection", "Keep-Alive");
 	            conn.setRequestProperty("user-agent",
 	                    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+	            conn.setRequestProperty("Content-Type", "application/json");
 	            // 发送POST请求必须设置如下两行
 	            conn.setDoOutput(true);
 	            conn.setDoInput(true);
