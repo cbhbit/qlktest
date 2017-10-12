@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;  
 import java.util.Date;  
 import java.util.HashMap;  
-import java.util.Map;  
-  
+import java.util.Map;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;  
 import org.apache.poi.ss.usermodel.Cell;  
 import org.apache.poi.ss.usermodel.DateUtil;  
@@ -49,21 +50,23 @@ public class ExcelReader {
      *  
      * @param InputStream 
      * @return String 表头内容的数组 
-     * @author zengwendong 
+     * @author zijing 
      */  
-    public String[] readExcelTitle() throws Exception{  
+    public String[] readExcelTitle(int sheetNumber,int rowNumber) throws Exception{  
         if(wb==null){  
             throw new Exception("Workbook对象为空！");  
         }  
-        sheet = wb.getSheetAt(0);  
-        row = sheet.getRow(0);  
+        sheet = wb.getSheetAt(sheetNumber);  
+        row = sheet.getRow(rowNumber);  
         // 标题总列数  
         int colNum = row.getPhysicalNumberOfCells();  
-        System.out.println("colNum:" + colNum);  
+        //System.out.println("colNum:" + colNum);  
         String[] title = new String[colNum];  
-        for (int i = 0; i < colNum; i++) {  
-            // title[i] = getStringCellValue(row.getCell((short) i));  
-            title[i] = row.getCell(i).getStringCellValue();  
+        for (int i = 0; i < colNum; i++) {
+        	if(row.getCell(i)==null)
+        		title[i]="";
+        	else
+        		title[i] = row.getCell(i).getStringCellValue();
         }  
         return title;  
     }
@@ -72,7 +75,7 @@ public class ExcelReader {
      *  
      * @param InputStream 
      * @return Map 包含单元格数据内容的Map对象 
-     * @author zengwendong 
+     * @author zijing 
      */  
     public Map<Integer, Map<Integer,Object>> readExcelContent() throws Exception{  
         if(wb==null){  
@@ -106,7 +109,7 @@ public class ExcelReader {
      *  
      * @param cell 
      * @return 
-     * @author zengwendong 
+     * @author zijing 
      */  
     @SuppressWarnings("deprecation")
 	private Object getCellFormatValue(Cell cell) {  
