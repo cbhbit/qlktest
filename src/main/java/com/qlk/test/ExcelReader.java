@@ -25,6 +25,31 @@ public class ExcelReader {
     private Sheet sheet;  
     private Row row;
     
+    public int getRowNumber(int sheetNumber){
+    	if(wb==null){  
+            try {
+				throw new Exception("Workbook对象为空！");
+			} catch (Exception e) {
+				return -1;
+			}  
+        }
+    	int rowNumber=wb.getSheetAt(sheetNumber).getLastRowNum();
+    	return rowNumber;
+    }
+    public int getColumNumber(int sheetNumber,int rowNumber){
+    	if(wb==null){  
+            try {
+				throw new Exception("Workbook对象为空！");
+			} catch (Exception e) {
+				return -1;
+			}  
+        }
+    	sheet = wb.getSheetAt(sheetNumber);  
+        row = sheet.getRow(rowNumber); 
+        int columNumber = row.getPhysicalNumberOfCells();
+    	return columNumber;
+    }
+    
     public ExcelReader(String filepath) {  
         if(filepath==null){  
             return;  
@@ -53,13 +78,9 @@ public class ExcelReader {
      * @author zijing 
      */  
     public String[] readExcelTitle(int sheetNumber,int rowNumber) throws Exception{  
-        if(wb==null){  
-            throw new Exception("Workbook对象为空！");  
-        }  
-        sheet = wb.getSheetAt(sheetNumber);  
-        row = sheet.getRow(rowNumber);  
+        
         // 标题总列数  
-        int colNum = row.getPhysicalNumberOfCells();  
+        int colNum = getColumNumber(sheetNumber,rowNumber);  
         //System.out.println("colNum:" + colNum);  
         String[] title = new String[colNum];  
         for (int i = 0; i < colNum; i++) {
