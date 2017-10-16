@@ -1,15 +1,19 @@
 package com.qlk.test;
 
+import java.io.File;
 import java.io.FileInputStream;  
-import java.io.FileNotFoundException;  
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;  
-import java.io.InputStream;  
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;  
 import java.util.HashMap;  
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;  
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.formula.functions.Column;
 import org.apache.poi.ss.usermodel.Cell;  
 import org.apache.poi.ss.usermodel.DateUtil;  
 import org.apache.poi.ss.usermodel.Row;  
@@ -19,12 +23,37 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;  
 import org.slf4j.LoggerFactory;
 
-public class ExcelReader {
-	private Logger logger = LoggerFactory.getLogger(ExcelReader.class);  
-    private Workbook wb;  
-    private Sheet sheet;  
-    private Row row;
+public class Excel{
+	private String filePath="C:\\Users\\cbhbit\\Desktop\\ODC.xlsx";
+	private Logger logger = LoggerFactory.getLogger(Excel.class);  
+    private Workbook wb=null;  
+    private Sheet sheet=null;  
+    private Row row=null;
+    private Column col=null;
+    private Cell cell=null;
     
+    public Workbook getWorkBook(String filepath){
+    	if(filepath==null){  
+            return null;  
+        }
+    	Workbook wb=null;
+        String ext = filepath.substring(filepath.lastIndexOf("."));  
+        try {  
+            InputStream is = new FileInputStream(filepath);  
+            if(".xls".equals(ext)){  
+                wb = new HSSFWorkbook(is);  
+            }else if(".xlsx".equals(ext)){
+                wb = new XSSFWorkbook(is);  
+            }else{  
+                wb=null;  
+            }  
+        } catch (FileNotFoundException e) {  
+            logger.error("FileNotFoundException", e);  
+        } catch (IOException e) {  
+            logger.error("IOException", e);  
+        }
+    	return wb;
+    }
     public int getRowNumber(int sheetNumber){
     	if(wb==null){  
             try {
@@ -50,25 +79,9 @@ public class ExcelReader {
     	return columNumber;
     }
     
-    public ExcelReader(String filepath) {  
-        if(filepath==null){  
-            return;  
-        }  
-        String ext = filepath.substring(filepath.lastIndexOf("."));  
-        try {  
-            InputStream is = new FileInputStream(filepath);  
-            if(".xls".equals(ext)){  
-                wb = new HSSFWorkbook(is);  
-            }else if(".xlsx".equals(ext)){
-                wb = new XSSFWorkbook(is);  
-            }else{  
-                wb=null;  
-            }  
-        } catch (FileNotFoundException e) {  
-            logger.error("FileNotFoundException", e);  
-        } catch (IOException e) {  
-            logger.error("IOException", e);  
-        }  
+    public Excel(String filepath) {
+    	this.filePath=filepath;
+        wb=getWorkBook(filepath);
     }
     /** 
      * 读取Excel表格表头的内容 
@@ -166,12 +179,38 @@ public class ExcelReader {
             cellvalue = "";  
         }  
         return cellvalue;  
-    }  
+    }
+    
+    public void writeExcel(int sheetNumber,int rowNumber,int colNumber,String s){
+    	wb=getWorkBook(filePath);
+    	//FileInputStream fis=new FileInputStream(filePath);
+    	wb.getSheetAt(sheetNumber).getRow(rowNumber).createCell(colNumber).setCellValue(s);    	
+//    	OutputStream os=null;
+//		try {
+//			os = new FileOutputStream(filePath);
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    	try {
+//			wb.write(os);
+//		} catch (IOException e) {
+//			
+//		}
+//    	if (wb != null) {
+//            try {
+//				((FileOutputStream) wb).close();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//        }
+    }
   
     public static void main(String[] args) {  
         try {  
             String filepath = "F:test.xls";  
-            ExcelReader excelReader = new ExcelReader(filepath);  
+            Excel excel = new Excel(filepath);  
             // 对读取Excel表格标题测试  
 //          String[] title = excelReader.readExcelTitle();  
 //          System.out.println("获得Excel表格的标题:");  
@@ -180,7 +219,7 @@ public class ExcelReader {
 //          }  
               
             // 对读取Excel表格内容测试  
-            Map<Integer, Map<Integer,Object>> map = excelReader.readExcelContent();  
+            Map<Integer, Map<Integer,Object>> map = excel.readExcelContent();  
             System.out.println("获得Excel表格的内容:");  
             for (int i = 1; i <= map.size(); i++) {  
                 System.out.println(map.get(i));  

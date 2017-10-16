@@ -13,7 +13,7 @@ public class Request {
 	private String[] requestRow;
 	
 	public String[] setRequestMethod(int sheetNumber,int rowNumber){
-		ExcelReader excelReader=new ExcelReader("C:\\Users\\cbhbit\\Desktop\\ODC.xlsx");
+		Excel excelReader=new Excel("C:\\Users\\cbhbit\\Desktop\\ODC.xlsx");
 		try {
 			requestRow=excelReader.readExcelTitle(sheetNumber, rowNumber);
 		} catch (Exception e) {
@@ -136,4 +136,9 @@ public class Request {
 	        }
 	        return result;
 	    }
+	
+	public void writeResult(String s,int rowNumber){
+		Excel excelReader=new Excel("C:\\Users\\cbhbit\\Desktop\\ODC.xlsx");
+		excelReader.writeExcel(1, rowNumber, 6, s);
+	}
 }
