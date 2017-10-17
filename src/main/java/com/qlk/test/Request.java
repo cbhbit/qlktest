@@ -137,8 +137,8 @@ public class Request {
 	        return result;
 	    }
 	
-	public void writeResult(String s,int rowNumber){
+	public void writeResult(String value,int rowNumber) throws Exception{
 		Excel excelReader=new Excel("C:\\Users\\cbhbit\\Desktop\\ODC.xlsx");
-		excelReader.writeExcel(1, rowNumber, 6, s);
+		excelReader.writeExcel(1, rowNumber, 6, value);
 	}
 }

@@ -18,7 +18,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;  
 import org.apache.poi.ss.usermodel.Row;  
 import org.apache.poi.ss.usermodel.Sheet;  
-import org.apache.poi.ss.usermodel.Workbook;  
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;  
 import org.slf4j.Logger;  
 import org.slf4j.LoggerFactory;
@@ -35,8 +38,7 @@ public class Excel{
     public Workbook getWorkBook(String filepath){
     	if(filepath==null){  
             return null;  
-        }
-    	Workbook wb=null;
+        }   	
         String ext = filepath.substring(filepath.lastIndexOf("."));  
         try {  
             InputStream is = new FileInputStream(filepath);  
@@ -181,55 +183,19 @@ public class Excel{
         return cellvalue;  
     }
     
-    public void writeExcel(int sheetNumber,int rowNumber,int colNumber,String s){
-    	wb=getWorkBook(filePath);
-    	//FileInputStream fis=new FileInputStream(filePath);
-    	wb.getSheetAt(sheetNumber).getRow(rowNumber).createCell(colNumber).setCellValue(s);    	
-//    	OutputStream os=null;
-//		try {
-//			os = new FileOutputStream(filePath);
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//    	try {
-//			wb.write(os);
-//		} catch (IOException e) {
-//			
-//		}
-//    	if (wb != null) {
-//            try {
-//				((FileOutputStream) wb).close();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//        }
-    }
-  
-    public static void main(String[] args) {  
-        try {  
-            String filepath = "F:test.xls";  
-            Excel excel = new Excel(filepath);  
-            // 对读取Excel表格标题测试  
-//          String[] title = excelReader.readExcelTitle();  
-//          System.out.println("获得Excel表格的标题:");  
-//          for (String s : title) {  
-//              System.out.print(s + " ");  
-//          }  
-              
-            // 对读取Excel表格内容测试  
-            Map<Integer, Map<Integer,Object>> map = excel.readExcelContent();  
-            System.out.println("获得Excel表格的内容:");  
-            for (int i = 1; i <= map.size(); i++) {  
-                System.out.println(map.get(i));  
-            }  
-        } catch (FileNotFoundException e) {  
-            System.out.println("未找到指定路径的文件!");  
-            e.printStackTrace();  
-        }catch (Exception e) {  
-            e.printStackTrace();  
-        }  
-    }
+    public void writeExcel(int sheetNumber,int rowNumber,int colNumber,String value) throws IOException{
+    	FileInputStream fis = new FileInputStream(filePath);
+		wb=getWorkBook(filePath);
+		sheet = wb.getSheetAt(sheetNumber);
+		cell=sheet.getRow(rowNumber).getCell(colNumber);
+		//cell = sheet.createRow(rowNumber).createCell(colNumber);
+		cell.setCellValue(value);
+		
+
+		fis.close();// 关闭文件输入流
+    	FileOutputStream fos = new FileOutputStream(filePath);
+		wb.write(fos);
+		fos.close();// 关闭文件输出流
+    }  
 
 }
