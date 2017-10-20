@@ -6,139 +6,142 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
-import java.util.Map;
 
 public class Request {
+	private String filePath = "D:\\Backup\\æ¡Œé¢\\ODC.xlsx";
 	private String[] requestRow;
-	
-	public String[] setRequestMethod(int sheetNumber,int rowNumber){
-		Excel excelReader=new Excel("C:\\Users\\cbhbit\\Desktop\\ODC.xlsx");
+
+	public Request() {
+
+	}
+
+	public Request(String filePath) {
+		this.filePath = filePath;
+	}
+
+	public String[] setRequestMethod(String filePath, int sheetNumber, int rowNumber) {
+		Excel excelReader = new Excel(filePath);
 		try {
-			requestRow=excelReader.readExcelTitle(sheetNumber, rowNumber);
+			requestRow = excelReader.readExcelTitle(sheetNumber, rowNumber);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return requestRow;
 	}
-	
+
 	private String requestURL;
-	public String getRequestURL(int rowNumber){
-		requestURL=setRequestMethod(0,1)[0]+setRequestMethod(1,rowNumber)[0]+setRequestMethod(1,rowNumber)[1];
+
+	public String getRequestURL(int rowNumber) {
+		requestURL = setRequestMethod(filePath, 0, 1)[0] + setRequestMethod(filePath, 1, rowNumber)[0]
+				+ setRequestMethod(filePath, 1, rowNumber)[1];
 		return requestURL;
 	}
-	
-	public String sendGet(int rowNumber){
+
+	public String sendGet(int rowNumber) {
 		String result = "";
-		String url=getRequestURL(rowNumber);
-		String param=setRequestMethod(1,rowNumber)[2];
-        BufferedReader in = null;
-        String urlNameString;
-        try {
-        	if(param=="")
-        		urlNameString = url;
-        	else
-                urlNameString = url + "?" + param;
-            URL realUrl = new URL(urlNameString);
-            //System.out.println(urlNameString);
-            // ´ò¿ªºÍURLÖ®¼äµÄÁ¬½Ó
-            URLConnection connection = realUrl.openConnection();
-            // ÉèÖÃÍ¨ÓÃµÄÇëÇóÊôĞÔ
-            connection.setRequestProperty("accept", "*/*");
-            connection.setRequestProperty("connection", "Keep-Alive");
-            connection.setRequestProperty("user-agent",
-                    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-            // ½¨Á¢Êµ¼ÊµÄÁ¬½Ó
-            connection.connect();
-            /*// »ñÈ¡ËùÓĞÏìÓ¦Í·×Ö¶Î
-            Map<String, List<String>> map = connection.getHeaderFields();
-            // ±éÀúËùÓĞµÄÏìÓ¦Í·×Ö¶Î
-            for (String key : map.keySet()) {
-                System.out.println(key + "--->" + map.get(key));
-            }*/
-            // ¶¨Òå BufferedReaderÊäÈëÁ÷À´¶ÁÈ¡URLµÄÏìÓ¦
-            in = new BufferedReader(new InputStreamReader(
-                    connection.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                result += line;
-            }
-        } catch (Exception e) {
-            System.out.println("·¢ËÍGETÇëÇó³öÏÖÒì³££¡" + e);
-            e.printStackTrace();
-        }
-        // Ê¹ÓÃfinally¿éÀ´¹Ø±ÕÊäÈëÁ÷
-        finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
-        }
-        return result;
+		String url = getRequestURL(rowNumber);
+		String param = setRequestMethod(filePath, 1, rowNumber)[2];
+		BufferedReader in = null;
+		String urlNameString;
+		try {
+			if (param == "")
+				urlNameString = url;
+			else
+				urlNameString = url + "?" + param;
+			URL realUrl = new URL(urlNameString);
+			// System.out.println(urlNameString);
+			// ï¿½ò¿ªºï¿½URLÖ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			URLConnection connection = realUrl.openConnection();
+			// ï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			connection.setRequestProperty("accept", "*/*");
+			connection.setRequestProperty("connection", "Keep-Alive");
+			connection.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+			// ï¿½ï¿½ï¿½ï¿½Êµï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½
+			connection.connect();
+			/*
+			 * // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦Í·ï¿½Ö¶ï¿½ Map<String, List<String>> map =
+			 * connection.getHeaderFields(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½Ó¦Í·ï¿½Ö¶ï¿½ for (String key :
+			 * map.keySet()) { System.out.println(key + "--->" + map.get(key)); }
+			 */
+			// ï¿½ï¿½ï¿½ï¿½ BufferedReaderï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡URLï¿½ï¿½ï¿½ï¿½Ó¦
+			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String line;
+			while ((line = in.readLine()) != null) {
+				result += line;
+			}
+		} catch (Exception e) {
+			System.out.println("ï¿½ï¿½ï¿½ï¿½GETï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì³£ï¿½ï¿½" + e);
+			e.printStackTrace();
+		}
+		// Ê¹ï¿½ï¿½finallyï¿½ï¿½ï¿½ï¿½ï¿½Ø±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		finally {
+			try {
+				if (in != null) {
+					in.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return result;
 	}
 
 	public String sendPost(int rowNumber) {
-	        PrintWriter out = null;
-	        String url=getRequestURL(rowNumber);
-			String param=setRequestMethod(1,rowNumber)[2];
-	        BufferedReader in = null;
-	        String result = "";
-	        String urlNameString;
-	        try {	        	
-	        	urlNameString = url;
-	        	
-	            URL realUrl = new URL(urlNameString);
-	            // ´ò¿ªºÍURLÖ®¼äµÄÁ¬½Ó
-	            URLConnection conn = realUrl.openConnection();
-	            // ÉèÖÃÍ¨ÓÃµÄÇëÇóÊôĞÔ
-	            conn.setRequestProperty("accept", "*/*");
-	            conn.setRequestProperty("connection", "Keep-Alive");
-	            conn.setRequestProperty("user-agent",
-	                    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-	            conn.setRequestProperty("Content-Type", "application/json");
-	            // ·¢ËÍPOSTÇëÇó±ØĞëÉèÖÃÈçÏÂÁ½ĞĞ
-	            conn.setDoOutput(true);
-	            conn.setDoInput(true);
-	            // »ñÈ¡URLConnection¶ÔÏó¶ÔÓ¦µÄÊä³öÁ÷
-	            out = new PrintWriter(conn.getOutputStream());
-	            // ·¢ËÍÇëÇó²ÎÊı
-	            out.print(param);
-	            // flushÊä³öÁ÷µÄ»º³å
-	            out.flush();
-	            // ¶¨ÒåBufferedReaderÊäÈëÁ÷À´¶ÁÈ¡URLµÄÏìÓ¦
-	            in = new BufferedReader(
-	                    new InputStreamReader(conn.getInputStream()));
-	            String line;
-	            while ((line = in.readLine()) != null) {
-	                result += line;
-	            }
-	        } catch (Exception e) {
-	            System.out.println("·¢ËÍ POST ÇëÇó³öÏÖÒì³££¡"+e);
-	            e.printStackTrace();
-	        }
-	        //Ê¹ÓÃfinally¿éÀ´¹Ø±ÕÊä³öÁ÷¡¢ÊäÈëÁ÷
-	        finally{
-	            try{
-	                if(out!=null){
-	                    out.close();
-	                }
-	                if(in!=null){
-	                    in.close();
-	                }
-	            }
-	            catch(IOException ex){
-	                ex.printStackTrace();
-	            }
-	        }
-	        return result;
-	    }
-	
-	public void writeResult(String value,int rowNumber) throws Exception{
-		Excel excelReader=new Excel("C:\\Users\\cbhbit\\Desktop\\ODC.xlsx");
+		PrintWriter out = null;
+		String url = getRequestURL(rowNumber);
+		String param = setRequestMethod(filePath, 1, rowNumber)[2];
+		BufferedReader in = null;
+		String result = "";
+		String urlNameString;
+		try {
+			urlNameString = url;
+
+			URL realUrl = new URL(urlNameString);
+			// ï¿½ò¿ªºï¿½URLÖ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			URLConnection conn = realUrl.openConnection();
+			// ï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			conn.setRequestProperty("accept", "*/*");
+			conn.setRequestProperty("connection", "Keep-Alive");
+			conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+			conn.setRequestProperty("Content-Type", "application/json");
+			// ï¿½ï¿½ï¿½ï¿½POSTï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+			// ï¿½ï¿½È¡URLConnectionï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			out = new PrintWriter(conn.getOutputStream());
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			out.print(param);
+			// flushï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½
+			out.flush();
+			// ï¿½ï¿½ï¿½ï¿½BufferedReaderï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡URLï¿½ï¿½ï¿½ï¿½Ó¦
+			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String line;
+			while ((line = in.readLine()) != null) {
+				result += line;
+			}
+		} catch (Exception e) {
+			System.out.println("ï¿½ï¿½ï¿½ï¿½ POST ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì³£ï¿½ï¿½" + e);
+			e.printStackTrace();
+		}
+		// Ê¹ï¿½ï¿½finallyï¿½ï¿½ï¿½ï¿½ï¿½Ø±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		finally {
+			try {
+				if (out != null) {
+					out.close();
+				}
+				if (in != null) {
+					in.close();
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		return result;
+	}
+
+	public void writeResult(String value, int rowNumber) throws Exception {
+		Excel excelReader = new Excel(filePath);
 		excelReader.writeExcel(1, rowNumber, 6, value);
 	}
 }

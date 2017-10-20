@@ -27,14 +27,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Excel{
-	private String filePath="C:\\Users\\cbhbit\\Desktop\\ODC.xlsx";
-	private Logger logger = LoggerFactory.getLogger(Excel.class);  
+	private Logger logger = LoggerFactory.getLogger(Excel.class);
+	
+	private String filePath;	  
     private Workbook wb=null;  
     private Sheet sheet=null;  
     private Row row=null;
     private Column col=null;
     private Cell cell=null;
     
+    public Excel(String filepath) {
+    	this.filePath=filepath;
+        wb=getWorkBook(filepath);
+    }
     public Workbook getWorkBook(String filepath){
     	if(filepath==null){  
             return null;  
@@ -49,9 +54,11 @@ public class Excel{
             }else{  
                 wb=null;  
             }  
-        } catch (FileNotFoundException e) {  
+        } catch (FileNotFoundException e) {
+        	System.out.println(filepath+"is not found!");
             logger.error("FileNotFoundException", e);  
-        } catch (IOException e) {  
+        } catch (IOException e) { 
+        	System.out.println("Error while IO!");
             logger.error("IOException", e);  
         }
     	return wb;
@@ -80,23 +87,11 @@ public class Excel{
         int columNumber = row.getPhysicalNumberOfCells();
     	return columNumber;
     }
-    
-    public Excel(String filepath) {
-    	this.filePath=filepath;
-        wb=getWorkBook(filepath);
-    }
-    /** 
-     * 读取Excel表格表头的内容 
-     *  
-     * @param InputStream 
-     * @return String 表头内容的数组 
-     * @author zijing 
-     */  
+     
     public String[] readExcelTitle(int sheetNumber,int rowNumber) throws Exception{  
         
         // 标题总列数  
-        int colNum = getColumNumber(sheetNumber,rowNumber);  
-        //System.out.println("colNum:" + colNum);  
+        int colNum = getColumNumber(sheetNumber,rowNumber);   
         String[] title = new String[colNum];  
         for (int i = 0; i < colNum; i++) {
         	if(row.getCell(i)==null)
@@ -106,13 +101,7 @@ public class Excel{
         }  
         return title;  
     }
-    /** 
-     * 读取Excel数据内容 
-     *  
-     * @param InputStream 
-     * @return Map 包含单元格数据内容的Map对象 
-     * @author zijing 
-     */  
+     
     public Map<Integer, Map<Integer,Object>> readExcelContent() throws Exception{  
         if(wb==null){  
             throw new Exception("Workbook对象为空！");  
@@ -139,15 +128,6 @@ public class Excel{
         return content;  
     }  
   
-    /** 
-     *  
-     * 根据Cell类型设置数据 
-     *  
-     * @param cell 
-     * @return 
-     * @author zijing 
-     */  
-    @SuppressWarnings("deprecation")
 	private Object getCellFormatValue(Cell cell) {  
         Object cellvalue = "";  
         if (cell != null) {  
@@ -184,15 +164,11 @@ public class Excel{
     }
     
     public void writeExcel(int sheetNumber,int rowNumber,int colNumber,String value) throws IOException{
-    	FileInputStream fis = new FileInputStream(filePath);
-		wb=getWorkBook(filePath);
+
 		sheet = wb.getSheetAt(sheetNumber);
-		cell=sheet.getRow(rowNumber).getCell(colNumber);
-		//cell = sheet.createRow(rowNumber).createCell(colNumber);
+		cell=sheet.getRow(rowNumber).createCell(colNumber);
 		cell.setCellValue(value);
 		
-
-		fis.close();// 关闭文件输入流
     	FileOutputStream fos = new FileOutputStream(filePath);
 		wb.write(fos);
 		fos.close();// 关闭文件输出流

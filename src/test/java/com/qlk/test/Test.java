@@ -16,9 +16,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class Test {
 
 	public static void main(String[] args) throws Exception {
-		Request request=new Request();
-		int i=18;
-		request.writeResult("123", i);
+		Request request=new Request("E:\\ODC.xlsx");
+		int i=1;
+		request.writeResult("kkk", i);
+		request.writeResult("爱爱啊", 2);
+		request.writeResult("烦烦烦", 3);
 
 	}
 
