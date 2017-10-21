@@ -18,7 +18,7 @@ public class Test {
 	public static void main(String[] args) throws Exception {
 		Request request=new Request("E:\\ODC.xlsx");
 		int i=1;
-		request.writeResult("111", i);
+		request.writeResult("{\"result\":\"111\"}", i);
 		request.writeResult("111", 2);
 		request.writeResult("烦烦烦", 3);
 

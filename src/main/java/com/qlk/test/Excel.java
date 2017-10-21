@@ -151,6 +151,13 @@ public class Excel{
     	else
     		return false;
     }
+    public boolean isEqual(int sheetNumber,int rowNumber,int modelNumber) throws Exception {
+    	String s="\"result\""+":\""+getContentRow(sheetNumber,rowNumber)[6]+"\"";
+    	if(getContentRow(sheetNumber,rowNumber)[7].contains(s))
+    		return true;
+    	else
+    		return false;
+    }
   
 	private Object getCellFormatValue(Cell cell) {  
         Object cellvalue = "";  
@@ -193,7 +200,7 @@ public class Excel{
 		cell=sheet.getRow(rowNumber).createCell(colNumber);
 		cell.setCellValue(value);
 		
-		if(isEqual(sheetNumber,rowNumber)) {
+		if(isEqual(sheetNumber,rowNumber,6)) {
 			cell=sheet.getRow(rowNumber).createCell(8);
 			cell.setCellValue("Pass");
 		}
