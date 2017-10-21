@@ -91,24 +91,26 @@ public class Excel{
     public String[] readExcelTitle(int sheetNumber,int rowNumber) throws Exception{  
         
         // 标题总列数  
-        int colNum = getColumNumber(sheetNumber,rowNumber);   
+        int colNum = getColumNumber(sheetNumber,rowNumber); 
+        //System.out.println("colNum="+colNum);
         String[] title = new String[colNum];  
         for (int i = 0; i < colNum; i++) {
         	if(row.getCell(i)==null)
         		title[i]="";
         	else
         		title[i] = row.getCell(i).getStringCellValue();
-        }  
+        }
+        //System.out.println("title="+title.length);
         return title;  
     }
      
-    public Map<Integer, Map<Integer,Object>> readExcelContent() throws Exception{  
+    public Map<Integer, Map<Integer,Object>> readExcelContent(int sheetNumber) throws Exception{  
         if(wb==null){  
             throw new Exception("Workbook对象为空！");  
         }  
         Map<Integer, Map<Integer,Object>> content = new HashMap<Integer, Map<Integer,Object>>();  
           
-        sheet = wb.getSheetAt(0);  
+        sheet = wb.getSheetAt(sheetNumber);  
         // 得到总行数  
         int rowNum = sheet.getLastRowNum();  
         row = sheet.getRow(0);  
@@ -126,7 +128,29 @@ public class Excel{
             content.put(i, cellValue);  
         }  
         return content;  
-    }  
+    } 
+    
+    @SuppressWarnings("null")
+	public String[] getContentRow(int sheetNumber,int rowNumber) throws Exception {
+    	String[] row=new String[readExcelContent(sheetNumber).get(rowNumber).size()];
+    	for(int i=0;i<readExcelContent(sheetNumber).get(rowNumber).size();i++) {
+    		//System.out.println(readExcelContent(sheetNumber).get(rowNumber));
+    		//System.out.println(readExcelContent(sheetNumber).get(rowNumber).get(i).equals(""));
+//    		if(readExcelContent(sheetNumber).get(rowNumber).get(i).equals("")&&
+//    				readExcelContent(sheetNumber).get(rowNumber).get(i).equals(null))
+//    			row[i]="null";
+//    		else
+    			row[i]=String.valueOf(readExcelContent(sheetNumber).get(rowNumber).get(i));
+    	}
+    	return row;
+    }
+    
+    public boolean isEqual(int sheetNumber,int rowNumber) throws Exception {
+    	if(getContentRow(sheetNumber,rowNumber)[7].equals(getContentRow(sheetNumber,rowNumber)[6]))
+    		return true;
+    	else
+    		return false;
+    }
   
 	private Object getCellFormatValue(Cell cell) {  
         Object cellvalue = "";  
@@ -163,11 +187,20 @@ public class Excel{
         return cellvalue;  
     }
     
-    public void writeExcel(int sheetNumber,int rowNumber,int colNumber,String value) throws IOException{
+    public void writeExcel(int sheetNumber,int rowNumber,int colNumber,String value) throws Exception{
 
 		sheet = wb.getSheetAt(sheetNumber);
 		cell=sheet.getRow(rowNumber).createCell(colNumber);
 		cell.setCellValue(value);
+		
+		if(isEqual(sheetNumber,rowNumber)) {
+			cell=sheet.getRow(rowNumber).createCell(8);
+			cell.setCellValue("Pass");
+		}
+		else {
+			cell=sheet.getRow(rowNumber).createCell(8);
+			cell.setCellValue("Fail");
+		}
 		
     	FileOutputStream fos = new FileOutputStream(filePath);
 		wb.write(fos);

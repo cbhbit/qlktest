@@ -22,11 +22,12 @@ public class Request {
 	public String[] setRequestMethod(String filePath, int sheetNumber, int rowNumber) {
 		Excel excelReader = new Excel(filePath);
 		try {
-			requestRow = excelReader.readExcelTitle(sheetNumber, rowNumber);
+			requestRow=excelReader.getContentRow(sheetNumber, rowNumber);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//System.out.println(requestRow.length);
 		return requestRow;
 	}
 
@@ -142,6 +143,8 @@ public class Request {
 
 	public void writeResult(String value, int rowNumber) throws Exception {
 		Excel excelReader = new Excel(filePath);
-		excelReader.writeExcel(1, rowNumber, 6, value);
+		excelReader.writeExcel(1, rowNumber, 7, value);
+		
 	}
+	
 }
