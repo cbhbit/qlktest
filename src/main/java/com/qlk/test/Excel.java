@@ -1,24 +1,20 @@
 package com.qlk.test;
 
-import java.io.File;
-import java.io.FileInputStream;  
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;  
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;  
 import java.util.HashMap;  
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.formula.functions.Column;
-import org.apache.poi.ss.usermodel.Cell;  
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DateUtil;  
-import org.apache.poi.ss.usermodel.Row;  
-import org.apache.poi.ss.usermodel.Sheet;  
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -29,136 +25,307 @@ import org.slf4j.LoggerFactory;
 public class Excel{
 	private Logger logger = LoggerFactory.getLogger(Excel.class);
 	
-	private String filePath;	  
-    private Workbook wb=null;  
-    private Sheet sheet=null;  
-    private Row row=null;
-    private Column col=null;
-    private Cell cell=null;
-    
-    public Excel(String filepath) {
-    	this.filePath=filepath;
-        wb=getWorkBook(filepath);
+    public String[] readExcelXLSTitleBySheet(String filePath,int sheetNumber){
+    	FileInputStream fileIn=null;
+    	HSSFWorkbook wb=null;
+		try {
+			fileIn = new FileInputStream(filePath);
+			wb=new HSSFWorkbook(fileIn);
+	    	HSSFSheet sheet=wb.getSheetAt(sheetNumber);
+	    	HSSFRow row=sheet.getRow(0);
+
+	    	int colNum = row.getPhysicalNumberOfCells();
+	    	String[] title=new String[colNum];
+	    	for (int i = 0; i < colNum; i++) {
+	        	if(row.getCell(i)==null)
+	        		title[i]="";
+	        	else
+	        		title[i] = row.getCell(i).getStringCellValue();
+	        }
+	    	return title;
+		} catch (FileNotFoundException e) {
+			logger.error("FileNotFound",e);
+		} catch (IOException e) {
+			logger.error("IOException",e);
+		}finally{
+			try {
+				wb.close();
+				fileIn.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+    	return null;   	
     }
-    public Workbook getWorkBook(String filepath){
-    	if(filepath==null){  
-            return null;  
-        }   	
-        String ext = filepath.substring(filepath.lastIndexOf("."));  
-        try {  
-            InputStream is = new FileInputStream(filepath);  
-            if(".xls".equals(ext)){  
-                wb = new HSSFWorkbook(is);  
-            }else if(".xlsx".equals(ext)){
-                wb = new XSSFWorkbook(is);  
-            }else{  
-                wb=null;  
-            }  
-        } catch (FileNotFoundException e) {
-        	System.out.println(filepath+"is not found!");
-            logger.error("FileNotFoundException", e);  
-        } catch (IOException e) { 
-        	System.out.println("Error while IO!");
-            logger.error("IOException", e);  
-        }
-    	return wb;
+    public Map<Integer, Map<Integer,Object>> readExcelXLSContentBySheet(String filePath,int sheetNumber){  
+    	FileInputStream fileIn=null;
+    	HSSFWorkbook wb=null;
+		try {
+			fileIn = new FileInputStream(filePath);
+			wb=new HSSFWorkbook(fileIn);
+	    	HSSFSheet sheet=wb.getSheetAt(sheetNumber);
+	    	HSSFRow row=sheet.getRow(0);
+	    	
+	    	Map<Integer, Map<Integer,Object>> content = new HashMap<Integer, Map<Integer,Object>>();    
+	        // 得到总行数  
+	        int rowNum = sheet.getLastRowNum();  
+	        row = sheet.getRow(0);  
+	        int colNum = row.getPhysicalNumberOfCells();  
+	        // 正文内容应该从第二行开始,第一行为表头的标题  
+	        for (int i = 1; i <= rowNum; i++) {  
+	            row = sheet.getRow(i);  
+	            int j = 0;  
+	            Map<Integer,Object> cellValue = new HashMap<Integer, Object>();  
+	            while (j < colNum) {  
+	                Object obj = getCellFormatValue(row.getCell(j));  
+	                cellValue.put(j, obj);  
+	                j++;  
+	            }  
+	            content.put(i, cellValue);  
+	        }  
+	        return content;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			try {
+				wb.close();
+				fileIn.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
     }
-    public int getRowNumber(int sheetNumber){
-    	if(wb==null){  
-            try {
-				throw new Exception("Workbook对象为空！");
-			} catch (Exception e) {
-				return -1;
-			}  
-        }
-    	int rowNumber=wb.getSheetAt(sheetNumber).getLastRowNum();
-    	return rowNumber;
+    public void writeExcelXLSByCell(String filePath,int sheetNumber,int rowNumber,int cellNumber,String value){
+    	FileInputStream fileIn=null;
+    	FileOutputStream fileOut=null;
+    	HSSFWorkbook wb=null;
+		try {
+			fileIn = new FileInputStream(filePath);
+			fileOut=new FileOutputStream(filePath);
+	    	
+	    	wb=new HSSFWorkbook(fileIn);
+	    	HSSFSheet sheet=wb.getSheetAt(sheetNumber);
+	    	HSSFRow row=sheet.getRow(rowNumber);
+	    	HSSFCell cell=row.createCell(cellNumber);
+			cell.setCellValue(value);
+			
+			wb.write(fileOut);
+			fileOut.flush();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			try {
+				wb.close();
+				fileIn.close();
+				fileOut.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
     }
-    public int getColumNumber(int sheetNumber,int rowNumber){
-    	if(wb==null){  
-            try {
-				throw new Exception("Workbook对象为空！");
-			} catch (Exception e) {
-				return -1;
-			}  
-        }
-    	sheet = wb.getSheetAt(sheetNumber);  
-        row = sheet.getRow(rowNumber); 
-        int columNumber = row.getPhysicalNumberOfCells();
-    	return columNumber;
+    public String[] readExcelXLSXTitleBySheet(String filePath,int sheetNumber){
+    	FileInputStream fileIn=null;
+    	XSSFWorkbook wb=null;
+		try {
+			fileIn = new FileInputStream(filePath);
+			wb=new XSSFWorkbook(fileIn);
+	    	XSSFSheet sheet=wb.getSheetAt(sheetNumber);
+	    	XSSFRow row=sheet.getRow(0);
+
+	    	int colNum = row.getPhysicalNumberOfCells();
+	    	String[] title=new String[colNum];
+	    	for (int i = 0; i < colNum; i++) {
+	        	if(row.getCell(i)==null)
+	        		title[i]="";
+	        	else
+	        		title[i] = row.getCell(i).getStringCellValue();
+	        }
+	    	return title;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			try {
+				wb.close();
+				fileIn.close();				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}
+    	return null;    	
     }
-     
-    public String[] readExcelTitle(int sheetNumber,int rowNumber) throws Exception{  
-        
-        // 标题总列数  
-        int colNum = getColumNumber(sheetNumber,rowNumber); 
-        //System.out.println("colNum="+colNum);
-        String[] title = new String[colNum];  
-        for (int i = 0; i < colNum; i++) {
-        	if(row.getCell(i)==null)
-        		title[i]="";
-        	else
-        		title[i] = row.getCell(i).getStringCellValue();
-        }
-        //System.out.println("title="+title.length);
-        return title;  
+    public Map<Integer, Map<Integer,Object>> readExcelXLSXContentBySheet(String filePath,int sheetNumber){  
+    	FileInputStream fileIn=null;
+    	XSSFWorkbook wb=null;
+		try {
+			fileIn = new FileInputStream(filePath);
+			wb=new XSSFWorkbook(fileIn);
+	    	XSSFSheet sheet=wb.getSheetAt(sheetNumber);
+	    	XSSFRow row=sheet.getRow(0);
+	    	
+	    	Map<Integer, Map<Integer,Object>> content = new HashMap<Integer, Map<Integer,Object>>();    
+	        // 得到总行数  
+	        int rowNum = sheet.getLastRowNum();  
+	        row = sheet.getRow(0);  
+	        int colNum = row.getPhysicalNumberOfCells();  
+	        // 正文内容应该从第二行开始,第一行为表头的标题  
+	        for (int i = 1; i <= rowNum; i++) {  
+	            row = sheet.getRow(i);  
+	            int j = 0;  
+	            Map<Integer,Object> cellValue = new HashMap<Integer, Object>();  
+	            while (j < colNum) {  
+	                Object obj = getCellFormatValue(row.getCell(j));  
+	                cellValue.put(j, obj);  
+	                j++;  
+	            }  
+	            content.put(i, cellValue);  
+	        }  
+	        return content;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(wb!=null)
+			try {
+				wb.close();	
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(fileIn!=null)
+				try {
+					fileIn.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+    	return null;
     }
-     
-    public Map<Integer, Map<Integer,Object>> readExcelContent(int sheetNumber) throws Exception{  
-        if(wb==null){  
-            throw new Exception("Workbook对象为空！");  
-        }  
-        Map<Integer, Map<Integer,Object>> content = new HashMap<Integer, Map<Integer,Object>>();  
-          
-        sheet = wb.getSheetAt(sheetNumber);  
-        // 得到总行数  
-        int rowNum = sheet.getLastRowNum();  
-        row = sheet.getRow(0);  
-        int colNum = row.getPhysicalNumberOfCells();  
-        // 正文内容应该从第二行开始,第一行为表头的标题  
-        for (int i = 1; i <= rowNum; i++) {  
-            row = sheet.getRow(i);  
-            int j = 0;  
-            Map<Integer,Object> cellValue = new HashMap<Integer, Object>();  
-            while (j < colNum) {  
-                Object obj = getCellFormatValue(row.getCell(j));  
-                cellValue.put(j, obj);  
-                j++;  
-            }  
-            content.put(i, cellValue);  
-        }  
-        return content;  
-    } 
-    
-    @SuppressWarnings("null")
-	public String[] getContentRow(int sheetNumber,int rowNumber) throws Exception {
-    	String[] row=new String[readExcelContent(sheetNumber).get(rowNumber).size()];
-    	for(int i=0;i<readExcelContent(sheetNumber).get(rowNumber).size();i++) {
-    		//System.out.println(readExcelContent(sheetNumber).get(rowNumber));
-    		//System.out.println(readExcelContent(sheetNumber).get(rowNumber).get(i).equals(""));
-//    		if(readExcelContent(sheetNumber).get(rowNumber).get(i).equals("")&&
-//    				readExcelContent(sheetNumber).get(rowNumber).get(i).equals(null))
-//    			row[i]="null";
-//    		else
-    			row[i]=String.valueOf(readExcelContent(sheetNumber).get(rowNumber).get(i));
-    	}
-    	return row;
+    public void writeExcelXLSXByCell(String filePath,int sheetNumber,int rowNumber,int cellNumber,String value){   	
+    	FileInputStream fileIn=null;
+    	XSSFWorkbook wb=null;
+    	FileOutputStream fileOut=null;
+    	try {
+			fileIn = new FileInputStream(filePath);
+			wb=new XSSFWorkbook(fileIn);
+	    	XSSFSheet sheet=wb.getSheetAt(sheetNumber);
+	    	XSSFRow row=sheet.getRow(rowNumber);
+	    	XSSFCell cell=row.createCell(cellNumber);
+	    	if(value.length()>32767)
+	    		cell.setCellValue(value.substring(0, 32767));
+	    	else
+	    		cell.setCellValue(value);
+			
+			fileOut=new FileOutputStream(filePath);
+			wb.write(fileOut);
+			fileOut.flush();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(wb!=null)
+			try {
+				wb.close();				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(fileIn!=null)
+				try {
+					fileIn.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			if(fileOut!=null){
+				try {
+					fileOut.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}    	
     }
-    
-    public boolean isEqual(int sheetNumber,int rowNumber) throws Exception {
-    	if(getContentRow(sheetNumber,rowNumber)[7].equals(getContentRow(sheetNumber,rowNumber)[6]))
-    		return true;
-    	else
-    		return false;
+    public void writeExcelXLSXByCell(String filePath,int sheetNumber,int rowNumber,int cellNumber,String value,int c){
+    	FileInputStream fileIn=null;
+    	XSSFWorkbook wb=null;
+    	FileOutputStream fileOut=null;
+    	try {
+			fileIn = new FileInputStream(filePath);
+			wb=new XSSFWorkbook(fileIn);
+	    	XSSFSheet sheet=wb.getSheetAt(sheetNumber);
+	    	XSSFRow row=sheet.getRow(rowNumber);
+	    	XSSFCell cell=row.createCell(cellNumber);
+	    	
+	    	//CellStyle cellStyle=cell.getCellStyle();
+			//cellStyle.setAlignment(CellStyle.ALIGN_FILL);
+			
+	    	if(value.length()>32767){
+	    		cell.setCellValue(value.substring(0, 32767));	    		
+		        //cell.setCellStyle(cellStyle);
+	    	}
+	    	else{
+	    		cell.setCellValue(value);}
+			
+			fileOut=new FileOutputStream(filePath);
+			wb.write(fileOut);
+			fileOut.flush();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(wb!=null)
+			try {
+				wb.close();				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(fileIn!=null)
+				try {
+					fileIn.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			if(fileOut!=null){
+				try {
+					fileOut.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
     }
-    public boolean isEqual(int sheetNumber,int rowNumber,int modelNumber) throws Exception {
-    	String s="\"result\""+":\""+getContentRow(sheetNumber,rowNumber)[6]+"\"";
-    	if(getContentRow(sheetNumber,rowNumber)[7].contains(s))
-    		return true;
-    	else
-    		return false;
-    }
-  
+    @SuppressWarnings("deprecation")
 	private Object getCellFormatValue(Cell cell) {  
         Object cellvalue = "";  
         if (cell != null) {  
@@ -192,26 +359,6 @@ public class Excel{
             cellvalue = "";  
         }  
         return cellvalue;  
-    }
-    
-    public void writeExcel(int sheetNumber,int rowNumber,int colNumber,String value) throws Exception{
-
-		sheet = wb.getSheetAt(sheetNumber);
-		cell=sheet.getRow(rowNumber).createCell(colNumber);
-		cell.setCellValue(value);
-		
-		if(isEqual(sheetNumber,rowNumber,6)) {
-			cell=sheet.getRow(rowNumber).createCell(8);
-			cell.setCellValue("Pass");
-		}
-		else {
-			cell=sheet.getRow(rowNumber).createCell(8);
-			cell.setCellValue("Fail");
-		}
-		
-    	FileOutputStream fos = new FileOutputStream(filePath);
-		wb.write(fos);
-		fos.close();// 关闭文件输出流
-    }  
+    }    
 
 }
