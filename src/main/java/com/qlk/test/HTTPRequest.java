@@ -32,7 +32,7 @@ public class HTTPRequest {
 			else
 				urlNameString = url + "?" + params;
 			URL realUrl = new URL(urlNameString);
-			System.out.println(urlNameString);
+			//System.out.println(urlNameString);
 			URLConnection connection = realUrl.openConnection();
 
 			connection.setRequestProperty("accept", "*/*");
@@ -70,7 +70,7 @@ public class HTTPRequest {
 			urlNameString = url;
 
 			URL realUrl = new URL(urlNameString);
-			System.out.println(urlNameString);
+			//System.out.println(urlNameString);
 			URLConnection conn = realUrl.openConnection();
 
 			conn.setRequestProperty("accept", "*/*");
