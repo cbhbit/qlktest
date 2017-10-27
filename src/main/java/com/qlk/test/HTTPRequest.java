@@ -8,13 +8,6 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class HTTPRequest {
-	private String result = "";
-	String urlNameString;
-	BufferedReader in = null;
-	
-	public String getResult() {
-		return result;
-	}
 	
 	public String sendrequest(String url,String params,String method){
 		if(method.equals("GET"))
@@ -26,6 +19,9 @@ public class HTTPRequest {
 	}
 
 	public String sendGet(String url,String params,String method) {
+		String result = "";
+		String urlNameString;
+		BufferedReader in = null;
 		try {
 			if (params == "")
 				urlNameString = url;
@@ -64,6 +60,9 @@ public class HTTPRequest {
 	}
 
 	public String sendPost(String url,String params,String method) {
+		String result = "";
+		String urlNameString;
+		BufferedReader in = null;
 		PrintWriter out = null;
 
 		try {
@@ -107,6 +106,7 @@ public class HTTPRequest {
 				//ex.printStackTrace();
 			}
 		}
+		//System.out.println(result);
 		return result;
 	}
 

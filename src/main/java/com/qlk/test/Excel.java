@@ -47,9 +47,9 @@ public class Excel {
 					Date date = cell.getDateCellValue();
 					cellvalue = date;
 				} else {// 如果是纯数字
-
+					cell.setCellType(Cell.CELL_TYPE_STRING);
 					// 取得当前Cell的数值
-					cellvalue = String.valueOf(cell.getNumericCellValue());
+					cellvalue = cell.getStringCellValue();//String.valueOf(cell.getNumericCellValue());
 				}
 				break;
 			}
@@ -133,7 +133,7 @@ public class Excel {
 			fileIn = new FileInputStream(filePath);
 			wb = new HSSFWorkbook(fileIn);
 			HSSFSheet sheet = wb.getSheetAt(sheetNumber);
-			for (int i = 1; i < value.length; i++) {
+			for (int i = 0; i < value.length; i++) {
 				HSSFRow row = sheet.getRow(i);
 				HSSFCell cell = row.createCell(columnNumber);
 				CellStyle cellStyle = wb.createCellStyle();
@@ -189,7 +189,7 @@ public class Excel {
 			fileIn = new FileInputStream(filePath);
 			wb = new HSSFWorkbook(fileIn);
 			HSSFSheet sheet = wb.getSheetAt(sheetNumber);
-			for (int i = 1; i < value.length; i++) {
+			for (int i = 0; i < value.length; i++) {
 				HSSFRow row = sheet.getRow(i);
 				HSSFCell cell = row.createCell(columnNumber);
 				CellStyle cellStyle = wb.createCellStyle();
@@ -307,7 +307,7 @@ public class Excel {
 			fileIn = new FileInputStream(filePath);
 			wb = new XSSFWorkbook(fileIn);
 			XSSFSheet sheet = wb.getSheetAt(sheetNumber);
-			for (int i = 1; i < value.length; i++) {
+			for (int i = 0; i < value.length; i++) {
 				XSSFRow row = sheet.getRow(i);
 				XSSFCell cell = row.createCell(columnNumber);
 				CellStyle cellStyle = wb.createCellStyle();
@@ -363,7 +363,7 @@ public class Excel {
 			fileIn = new FileInputStream(filePath);
 			wb = new XSSFWorkbook(fileIn);
 			XSSFSheet sheet = wb.getSheetAt(1);
-			for (int i = 1; i < value.length; i++) {
+			for (int i = 0; i < value.length; i++) {
 				XSSFRow row = sheet.getRow(i);
 				XSSFCell cell = row.createCell(columnNumber);
 
@@ -379,6 +379,128 @@ public class Excel {
 				}
 				cell.setCellStyle(cellStyle);
 			}
+
+			fileOut = new FileOutputStream(filePath);
+			wb.write(fileOut);
+			fileOut.flush();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (wb != null)
+				try {
+					wb.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			if (fileIn != null)
+				try {
+					fileIn.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			if (fileOut != null) {
+				try {
+					fileOut.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public void writeExcelXLSXResultPass(String result,String value, String filePath, int sheetNumber,int rowNumber, int columnNumber){
+		FileInputStream fileIn = null;
+		XSSFWorkbook wb = null;
+		FileOutputStream fileOut = null;
+		try {
+			fileIn = new FileInputStream(filePath);
+			wb = new XSSFWorkbook(fileIn);
+			XSSFSheet sheet = wb.getSheetAt(1);
+
+				XSSFRow row = sheet.getRow(rowNumber);
+				XSSFCell cell = row.createCell(columnNumber);
+				cell.setCellValue(result);
+				cell = row.createCell(columnNumber+1);
+				CellStyle cellStyle = wb.createCellStyle();
+				cell.setCellValue(value);
+				if (cell.getStringCellValue().equals("Pass")) {
+					cellStyle.setFillForegroundColor(IndexedColors.GREEN.index);
+					cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+					cell.setCellStyle(cellStyle);
+				} else if (value.equals("Fail")) {
+					cellStyle.setFillForegroundColor(IndexedColors.RED.index);
+					cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				}
+				cell.setCellStyle(cellStyle);
+			//}
+
+			fileOut = new FileOutputStream(filePath);
+			wb.write(fileOut);
+			fileOut.flush();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (wb != null)
+				try {
+					wb.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			if (fileIn != null)
+				try {
+					fileIn.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			if (fileOut != null) {
+				try {
+					fileOut.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public void writeExcelXLSResultPass(String result,String value, String filePath, int sheetNumber,int rowNumber, int columnNumber){
+		FileInputStream fileIn = null;
+		HSSFWorkbook wb = null;
+		FileOutputStream fileOut = null;
+		try {
+			fileIn = new FileInputStream(filePath);
+			wb = new HSSFWorkbook(fileIn);
+			HSSFSheet sheet = wb.getSheetAt(1);
+
+				HSSFRow row = sheet.getRow(rowNumber);
+				HSSFCell cell = row.createCell(columnNumber);
+				cell.setCellValue(result);
+				cell = row.createCell(columnNumber+1);
+				CellStyle cellStyle = wb.createCellStyle();
+				cell.setCellValue(value);
+				if (cell.getStringCellValue().equals("Pass")) {
+					cellStyle.setFillForegroundColor(IndexedColors.GREEN.index);
+					cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+					cell.setCellStyle(cellStyle);
+				} else if (value.equals("Fail")) {
+					cellStyle.setFillForegroundColor(IndexedColors.RED.index);
+					cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				}
+				cell.setCellStyle(cellStyle);
+			//}
 
 			fileOut = new FileOutputStream(filePath);
 			wb.write(fileOut);
